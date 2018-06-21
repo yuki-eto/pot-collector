@@ -1,0 +1,6 @@
+version: '2'
+services:
+  golang:
+    build: .
+    volumes:
+      - ".:/go/src/github.com/yuki-eto/pot-collector"
