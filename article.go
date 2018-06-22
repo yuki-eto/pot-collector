@@ -12,13 +12,14 @@ import (
 )
 
 type Article struct {
-	Selection  *goquery.Selection
-	ID         uint32
-	Name       string
-	Date       *time.Time
-	UID        string
-	Text       string
-	IsOver1000 bool
+	Selection        *goquery.Selection
+	ID               uint32
+	Name             string
+	Date             *time.Time
+	UID              string
+	Text             string
+	AnchorArticleIDs []uint32
+	IsOver1000       bool
 }
 type Articles struct {
 	List  []*Article
@@ -26,8 +27,9 @@ type Articles struct {
 }
 
 var (
-	ahrefRep = regexp.MustCompile(`<a .*?>(.*)?</a>`)
-	dateRep  = regexp.MustCompile(`\([月火水木金土日]\) ([0-9]{2}:[0-9]{2}:[0-9]{2}).[0-9]{2}`)
+	ahrefRep      = regexp.MustCompile(`<a[^>]+>([^<]+)</a>`)
+	anchorHrefRep = regexp.MustCompile(`^\.\./test/read\.cgi/.*?/[0-9]+/([0-9]+)$`)
+	dateRep       = regexp.MustCompile(`\([月火水木金土日]\) ([0-9]{2}:[0-9]{2}:[0-9]{2}).[0-9]{2}`)
 )
 
 func (p *Articles) Append(a *Article) {
@@ -87,7 +89,22 @@ func (p *Article) LoadArticle() error {
 	}
 	p.UID = uid
 
-	h, err := s.Find("div.message > span.escaped").First().Html()
+	escapedElem := s.Find("div.message > span.escaped").First()
+	aElements := escapedElem.Find("a")
+	aElements.Each(func(_ int, s *goquery.Selection) {
+		href, exists := s.Attr("href")
+		if !exists {
+			return
+		}
+		if !anchorHrefRep.MatchString(href) {
+			return
+		}
+		anchorIDStr := anchorHrefRep.ReplaceAllString(href, "$1")
+		anchorID, _ := strconv.ParseUint(anchorIDStr, 10, 64)
+		p.AnchorArticleIDs = append(p.AnchorArticleIDs, uint32(anchorID))
+	})
+
+	h, err := escapedElem.Html()
 	if err != nil {
 		return err
 	}

@@ -55,6 +55,11 @@ func main() {
 			}
 			fmt.Printf("%d: %s %v ID:%s\n", article.ID, article.Name, article.Date, article.UID)
 			fmt.Println(article.Text)
+			if len(article.AnchorArticleIDs) > 0 {
+				fmt.Printf("AnchorArticleIDs: %v", article.AnchorArticleIDs)
+				fmt.Println()
+			}
+
 			fmt.Println()
 		}
 	}

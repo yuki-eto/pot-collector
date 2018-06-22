@@ -45,7 +45,7 @@ func (p *Threads) FilterThread(f func(*Thread) bool) {
 
 func NewThread(s *goquery.Selection) *Thread {
 	return &Thread{
-		Selection: s,
+		Selection:         s,
 		LastReadArticleID: 1,
 	}
 }
