@@ -39,8 +39,9 @@ func (p *Articles) Append(a *Article) {
 
 func NewArticle(s *goquery.Selection) *Article {
 	return &Article{
-		ID:        0,
-		Selection: s,
+		ID:               0,
+		Selection:        s,
+		AnchorArticleIDs: []uint32{},
 	}
 }
 
